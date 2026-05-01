@@ -12,7 +12,86 @@ function closeSidebar() {
   document.getElementById('sidebarOverlay').classList.remove('open');
 }
 
-// ── DATE & GREETING ────────────────────────────────
+// ── FASHION QUOTES TICKER ──────────────────────────
+const fashionQuotes = [
+  '👗 "A great saree never goes out of style!"',
+  '💖 "Dress like you\'re already famous 🌟"',
+  '🥻 "Sarees — where tradition meets grace"',
+  '✨ "Your outfit is the first hello 👋"',
+  '🌸 "Wear your confidence like a blouse 💪"',
+  '💎 "Elegance is the only beauty that never fades"',
+  '🎀 "Life is too short to wear boring clothes!"',
+  '🌺 "Every saree tells a story — what\'s yours?"',
+  '👑 "A woman in a saree is royalty 👸"',
+  '🪷 "Fashion is art, and you are the canvas"',
+];
+
+function buildTicker() {
+  const inner = document.getElementById('tickerInner');
+  if (!inner) return;
+  // Duplicate for seamless loop
+  const all = [...fashionQuotes, ...fashionQuotes];
+  inner.innerHTML = all.map(q => `<span>${q}</span>`).join('');
+}
+
+// ── DAILY DEAL OFFERS ──────────────────────────────
+const allDeals = [
+  { emoji:'🥻', name:'Designer Sarees',    desc:'Authentic silk & cotton weaves', off:'25% OFF', orig:'From ₹4,000', new:'₹3,000' },
+  { emoji:'✂️', name:'Blouse Stitching',   desc:'Expert tailoring, ready in 3 days', off:'₹100 OFF', orig:'₹600', new:'₹500' },
+  { emoji:'💍', name:'Imitation Jewellery',desc:'Gold-plated bangles & necklaces', off:'Buy 2 Get 1', orig:'₹450 each', new:'Free 3rd piece' },
+  { emoji:'👚', name:'Fancy Tops & Kurtis',desc:'Latest trendy designs in stock', off:'15% OFF', orig:'From ₹1,000', new:'₹850' },
+  { emoji:'🌸', name:'Chudi Material',     desc:'Pure cotton & georgette sets', off:'10% OFF', orig:'₹1,200', new:'₹1,080' },
+  { emoji:'🌙', name:'Nighties & Homewear',desc:'Comfortable everyday wear', off:'Buy 2 Get 10%', orig:'₹700', new:'Save ₹140' },
+];
+
+// Pick 4 deals rotating by day-of-week
+function getDailyDeals() {
+  const day = new Date().getDay(); // 0–6
+  const start = day % (allDeals.length - 3);
+  return allDeals.slice(start, start + 4).concat(allDeals.slice(0, Math.max(0, 4 - (allDeals.length - start))));
+}
+
+function buildDailyDeals() {
+  const grid = document.getElementById('dailyDealsGrid');
+  const dateEl = document.getElementById('dealDate');
+  if (!grid) return;
+  if (dateEl) dateEl.textContent = '🗓️ Updated: ' + new Date().toLocaleDateString('en-IN', { day:'numeric', month:'short' });
+  const deals = getDailyDeals().slice(0, 4);
+  grid.innerHTML = deals.map(d => `
+    <div class="deal-card">
+      <span class="deal-emoji">${d.emoji}</span>
+      <div class="deal-name">${d.name}</div>
+      <div class="deal-desc">${d.desc}</div>
+      <div class="deal-discount-pill">${d.off}</div>
+      <div class="deal-original">${d.orig}</div>
+    </div>
+  `).join('');
+}
+
+// ── OFFER COUNTDOWN ────────────────────────────────
+function buildCountdown() {
+  const el = document.getElementById('offerCountdown');
+  if (!el) return;
+  const saleEnd = new Date('2026-05-03T23:59:59');
+  function update() {
+    const diff = saleEnd - new Date();
+    if (diff <= 0) { el.innerHTML = '<span style="color:#fff;font-weight:700;">🎉 Sale Ended!</span>'; return; }
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    el.innerHTML = [
+      { n: d, l: 'Days' },
+      { n: h, l: 'Hrs' },
+      { n: m, l: 'Min' },
+      { n: s, l: 'Sec' },
+    ].map(x => `<div class="countdown-box"><div class="cd-num">${String(x.n).padStart(2,'0')}</div><div class="cd-lbl">${x.l}</div></div>`).join('');
+  }
+  update();
+  setInterval(update, 1000);
+}
+
+
 const now = new Date();
 document.getElementById('todayDate').textContent =
   now.toLocaleDateString('en-IN', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
@@ -414,6 +493,9 @@ function renderReportCharts() {
   refreshAllInventory();
   renderMainCharts();
   buildNotifications();
+  buildTicker();
+  buildDailyDeals();
+  buildCountdown();
 
   // Startup toasts
   const lowItems = inventory.filter(i => i.qty < 8);
