@@ -2,6 +2,16 @@
    Saaral Fashion Hub — Dashboard JS
 ═══════════════════════════════════════════════════ */
 
+// ── MOBILE SIDEBAR DRAWER ──────────────────────────
+function toggleSidebar() {
+  document.querySelector('.sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('open');
+}
+function closeSidebar() {
+  document.querySelector('.sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+}
+
 // ── DATE & GREETING ────────────────────────────────
 const now = new Date();
 document.getElementById('todayDate').textContent =
@@ -268,6 +278,7 @@ function showSection(name) {
   document.getElementById('sectionTitle').textContent = titles[name] || name;
   if (name === 'tailoring') renderTailorGrid();
   if (name === 'reports')   renderReportCharts();
+  closeSidebar(); // auto-close on mobile
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 

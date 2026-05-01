@@ -16,6 +16,9 @@
 <!-- ── TOAST AREA ──────────────────────────────────────────── -->
 <div class="toast-area" id="toastArea"></div>
 
+<!-- ── MOBILE SIDEBAR OVERLAY ─────────────────────────────── -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
 <!-- ── NOTIFICATION PANEL (hidden by default) ─────────────── -->
 <div id="notifPanel" class="notif-panel" style="display:none;position:fixed;top:72px;right:28px;">
   <div class="notif-panel-header"><i class="fa fa-bell me-2"></i>Notifications</div>
@@ -180,6 +183,9 @@
         <p id="todayDate"></p>
       </div>
       <div class="topbar-right">
+        <button class="ham-btn" id="hamBtn" onclick="toggleSidebar()" aria-label="Open menu">
+          <i class="fa fa-bars"></i>
+        </button>
         <div class="search-wrap">
           <i class="fa fa-search si"></i>
           <input type="text" id="globalSearch" placeholder="Search inventory..." oninput="searchInventory(this.value)">
