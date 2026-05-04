@@ -396,11 +396,4 @@ function showToast(msg) {
 // --- Init on Page Load ---
 refreshAll();
 
-// Show startup warning if low stock
-var lowCount = 0;
-for (var i = 0; i < inventory.length; i++) {
-  if (inventory[i].qty < 8) lowCount++;
-}
-if (lowCount > 0) {
-  showToast(lowCount + ' item(s) are running low on stock!');
-}
+
