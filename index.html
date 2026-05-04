@@ -1,386 +1,362 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Saaral Fashion Hub — Dashboard</title>
-  <meta name="description" content="Saaral Fashion Hub boutique management dashboard — inventory, tailoring orders, billing and sales.">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Saaral Dress Shop - Dashboard</title>
   <link rel="stylesheet" href="assets/css/style.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
 
-<!-- ── TOAST AREA ──────────────────────────────────────────── -->
-<div class="toast-area" id="toastArea"></div>
+  <!-- Toast Messages -->
+  <div id="toastArea"></div>
 
-<!-- ── MOBILE SIDEBAR OVERLAY ─────────────────────────────── -->
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <!-- MODALS -->
 
-<!-- ── NOTIFICATION PANEL (hidden by default) ─────────────── -->
-<div id="notifPanel" class="notif-panel" style="display:none;position:fixed;top:72px;right:28px;">
-  <div class="notif-panel-header"><i class="fa fa-bell me-2"></i>Notifications</div>
-  <div id="notifList"></div>
-</div>
+  <!-- Add Stock Modal -->
+  <div id="addStockModal" class="modal-overlay" style="display:none;">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Add New Stock</h3>
+        <button onclick="closeModal('addStockModal')">X</button>
+      </div>
+      <label>Item Name</label>
+      <input type="text" id="si-name" placeholder="e.g. Silk Saree">
 
-<!-- ── MODALS ──────────────────────────────────────────────── -->
+      <label>Category</label>
+      <select id="si-cat">
+        <option>Sarees</option>
+        <option>Dress Materials</option>
+        <option>Tops</option>
+        <option>Anarkali</option>
+        <option>Nighties</option>
+        <option>Blouse Materials</option>
+        <option>Imitation Jewellery</option>
+        <option>Other</option>
+      </select>
 
-<!-- Add Stock Modal -->
-<div id="addStockModal" class="modal-overlay" style="display:none;">
-  <div class="modal-box">
-    <div class="modal-header">
-      <h4><i class="fa fa-plus-circle me-2"></i>Add New Stock</h4>
-      <button class="modal-close" onclick="closeModal('addStockModal')">✕</button>
+      <label>Quantity</label>
+      <input type="number" id="si-qty" placeholder="0" min="1">
+
+      <label>Price (Rs.)</label>
+      <input type="number" id="si-price" placeholder="0">
+
+      <button class="btn-primary" onclick="addStockItem()">Add to Inventory</button>
     </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Item Name</label>
-        <input type="text" id="si-name" placeholder="e.g. Silk Saree">
-      </div>
-      <div class="form-group">
-        <label>Category</label>
-        <select id="si-cat">
-          <option>Sarees</option>
-          <option>Dress Materials</option>
-          <option>Tops</option>
-          <option>Anarkali</option>
-          <option>Nighties</option>
-          <option>Blouse Materials</option>
-          <option>Imitation Jewellery</option>
-          <option>Other</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Quantity</label>
-        <input type="number" id="si-qty" placeholder="0" min="1">
-      </div>
-      <div class="form-group">
-        <label>Price (₹)</label>
-        <input type="number" id="si-price" placeholder="0">
-      </div>
-    </div>
-    <button class="btn-print" onclick="addStockItem()"><i class="fa fa-check me-2"></i>Add to Inventory</button>
   </div>
-</div>
 
-<!-- Bill Generator Modal -->
-<div id="billModal" class="modal-overlay" style="display:none;">
-  <div class="modal-box">
-    <div class="modal-header">
-      <h4><i class="fa fa-receipt me-2"></i>Quick Bill Generator</h4>
-      <button class="modal-close" onclick="closeModal('billModal')">✕</button>
-    </div>
-    <div id="billFormSection">
-      <div class="form-group">
+  <!-- Bill Generator Modal -->
+  <div id="billModal" class="modal-overlay" style="display:none;">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Quick Bill</h3>
+        <button onclick="closeModal('billModal')">X</button>
+      </div>
+      <div id="billFormSection">
         <label>Customer Name</label>
         <input type="text" id="bill-cust" placeholder="Customer name">
-      </div>
-      <div class="form-group">
+
         <label>Phone Number</label>
         <input type="text" id="bill-phone" placeholder="10-digit mobile">
-      </div>
-      <div id="billItems">
-        <div class="form-row bill-item-row" style="margin-bottom:10px;">
-          <div class="form-group" style="margin:0"><input type="text" placeholder="Item name" class="bill-iname"></div>
-          <div class="form-group" style="margin:0"><input type="number" placeholder="Qty" class="bill-iqty" min="1" value="1"></div>
-          <div class="form-group" style="margin:0"><input type="number" placeholder="Price ₹" class="bill-iprice"></div>
+
+        <div id="billItems">
+          <div class="bill-row">
+            <input type="text" placeholder="Item name" class="bill-iname">
+            <input type="number" placeholder="Qty" class="bill-iqty" min="1" value="1">
+            <input type="number" placeholder="Price Rs." class="bill-iprice">
+          </div>
         </div>
-      </div>
-      <button class="qa-btn outline" style="margin-bottom:14px;font-size:12px;" onclick="addBillRow()"><i class="fa fa-plus me-1"></i>Add Item</button>
-      <div class="form-group">
-        <label>Discount (₹)</label>
+
+        <button class="btn-outline" onclick="addBillRow()">+ Add Item</button>
+
+        <label>Discount (Rs.)</label>
         <input type="number" id="bill-discount" placeholder="0" value="0">
+
+        <button class="btn-primary" onclick="generateBill()">Generate Bill</button>
       </div>
-      <button class="btn-print" onclick="generateBill()"><i class="fa fa-file-invoice me-2"></i>Generate Bill</button>
-    </div>
-    <div id="billReceiptSection" style="display:none;">
-      <div class="bill-receipt" id="billReceiptContent"></div>
-      <div style="display:flex;gap:10px;margin-top:14px;">
-        <button class="btn-print" style="flex:1" onclick="window.print()"><i class="fa fa-print me-2"></i>Print</button>
-        <button class="btn-print" style="flex:1;background:linear-gradient(135deg,#7b4f66,#c2185b)" onclick="resetBill()"><i class="fa fa-redo me-2"></i>New Bill</button>
+
+      <div id="billReceiptSection" style="display:none;">
+        <div id="billReceiptContent" class="bill-receipt"></div>
+        <div class="btn-row">
+          <button class="btn-primary" onclick="window.print()">Print</button>
+          <button class="btn-outline" onclick="resetBill()">New Bill</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- Add Tailoring Order Modal -->
-<div id="tailorModal" class="modal-overlay" style="display:none;">
-  <div class="modal-box">
-    <div class="modal-header">
-      <h4><i class="fa fa-scissors me-2"></i>New Tailoring Order</h4>
-      <button class="modal-close" onclick="closeModal('tailorModal')">✕</button>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Customer Name</label>
-        <input type="text" id="tc-name" placeholder="Name">
+  <!-- Add Tailoring Order Modal -->
+  <div id="tailorModal" class="modal-overlay" style="display:none;">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>New Tailoring Order</h3>
+        <button onclick="closeModal('tailorModal')">X</button>
       </div>
-      <div class="form-group">
-        <label>Phone</label>
-        <input type="text" id="tc-phone" placeholder="Mobile">
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Work Type</label>
-        <select id="tc-type">
-          <option>Blouse Stitching</option>
-          <option>Falls & Edging</option>
-          <option>Frock Stitching</option>
-          <option>Kurti Alteration</option>
-          <option>Lining Work</option>
-          <option>Other</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Delivery Date</label>
-        <input type="date" id="tc-date">
-      </div>
-    </div>
-    <div class="form-group">
+
+      <label>Customer Name</label>
+      <input type="text" id="tc-name" placeholder="Name">
+
+      <label>Phone</label>
+      <input type="text" id="tc-phone" placeholder="Mobile">
+
+      <label>Work Type</label>
+      <select id="tc-type">
+        <option>Blouse Stitching</option>
+        <option>Falls &amp; Edging</option>
+        <option>Frock Stitching</option>
+        <option>Kurti Alteration</option>
+        <option>Lining Work</option>
+        <option>Other</option>
+      </select>
+
+      <label>Delivery Date</label>
+      <input type="date" id="tc-date">
+
       <label>Notes</label>
-      <textarea id="tc-notes" placeholder="Measurement notes, design preferences..."></textarea>
-    </div>
-    <div class="form-group">
-      <label>Advance Paid (₹)</label>
+      <textarea id="tc-notes" placeholder="Measurements, design notes..."></textarea>
+
+      <label>Advance Paid (Rs.)</label>
       <input type="number" id="tc-advance" placeholder="0">
+
+      <button class="btn-primary" onclick="addTailorOrder()">Save Order</button>
     </div>
-    <button class="btn-print" onclick="addTailorOrder()"><i class="fa fa-check me-2"></i>Save Order</button>
   </div>
-</div>
 
-<!-- ── LAYOUT ───────────────────────────────────────────────── -->
-<div id="dashboardRoot">
+  <!-- MAIN LAYOUT -->
+  <div id="app">
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <span class="logo-icon">👗</span>
-      <h2>Saaral Fashion Hub</h2>
-      <small>Boutique Management</small>
-    </div>
-    <nav>
-      <a class="nav-link active" onclick="showSection('overview')" id="nav-overview"><i class="fa fa-home"></i>Overview</a>
-      <a class="nav-link" onclick="showSection('inventory')" id="nav-inventory"><i class="fa fa-box-open"></i>Inventory</a>
-      <a class="nav-link" onclick="showSection('tailoring')" id="nav-tailoring"><i class="fa fa-scissors"></i>Tailoring Orders</a>
-      <a class="nav-link" onclick="showSection('jewellery')" id="nav-jewellery"><i class="fa fa-gem"></i>Imitation Jewellery</a>
-      <a class="nav-link" onclick="showSection('reports')" id="nav-reports"><i class="fa fa-chart-line"></i>Sales Reports</a>
-    </nav>
-    <div class="sidebar-footer">Saaral © 2026<br>Made with ❤️</div>
-  </aside>
-
-  <!-- MAIN -->
-  <main>
-
-    <!-- TOPBAR -->
-    <header class="topbar">
-      <div class="topbar-left">
-        <h1 id="sectionTitle">Overview</h1>
-        <p id="todayDate"></p>
+    <!-- SIDEBAR -->
+    <aside id="sidebar">
+      <div class="shop-name">
+        <br>
+        <br>
+        <h2>Saaral Dress Shop</h2>
       </div>
-      <div class="topbar-right">
-        <button class="ham-btn" id="hamBtn" onclick="toggleSidebar()" aria-label="Open menu">
-          <i class="fa fa-bars"></i>
-        </button>
-        <div class="search-wrap">
-          <i class="fa fa-search si"></i>
-          <input type="text" id="globalSearch" placeholder="Search inventory..." oninput="searchInventory(this.value)">
-        </div>
-        <div style="position:relative;">
-          <button class="notif-btn" id="notifBtn" onclick="toggleNotifPanel()">
-            <i class="fa fa-bell"></i>
-            <span class="notif-badge" id="notifCount">3</span>
-          </button>
-        </div>
-        <div class="avatar-btn"><i class="fa fa-user"></i></div>
-      </div>
-    </header>
+      <nav>
+        <a href="#" class="nav-link active" id="nav-overview" onclick="showSection('overview')">Overview</a>
+        <a href="#" class="nav-link" id="nav-inventory" onclick="showSection('inventory')">Inventory</a>
+        <a href="#" class="nav-link" id="nav-tailoring" onclick="showSection('tailoring')">Tailoring Orders</a>
+        <a href="#" class="nav-link" id="nav-jewellery" onclick="showSection('jewellery')">Jewellery</a>
+        <a href="#" class="nav-link" id="nav-reports" onclick="showSection('reports')">Reports</a>
+      </nav>
+      <p class="sidebar-footer">Saaral &copy; 2026</p>
+    </aside>
 
-    <!-- ─── OVERVIEW SECTION ──────────────────────────────── -->
-    <div id="section-overview">
+    <!-- MAIN CONTENT -->
+    <main id="mainContent">
 
-      <!-- Greeting Banner -->
-      <div class="greeting-banner">
+      <!-- TOPBAR -->
+      <div class="topbar">
         <div>
-          <h3 id="greetMsg">Good Morning! 🌸</h3>
-          <p>Here's what's happening at Saaral Fashion Hub today.</p>
+          <h1 id="sectionTitle">Overview</h1>
+          <p id="todayDate"></p>
         </div>
-        <span class="greeting-emoji">👗</span>
+        <div class="topbar-right">
+          <input type="text" id="globalSearch" placeholder="Search inventory..." oninput="searchInventory(this.value)">
+          <span id="greetMsg"></span>
+        </div>
       </div>
 
-      <!-- BIG OFFERS HERO BANNER -->
-      <div class="offers-hero" id="offersHero">
-        <div class="offers-hero-bg"></div>
-        <div class="offers-hero-content">
-          <div class="offers-fire-badge">🔥 HOT DEALS — LIMITED TIME!</div>
-          <h2 class="offers-hero-title">🛍️ Authentic Sarees Sale</h2>
-          <p class="offers-hero-dates">📅 April 25 — May 3, 2026</p>
-          <div class="offers-clearance-tag">
-            <span class="offers-pct">25% OFF</span>
-            <span class="offers-clearance-label">CLEARANCE SALE 🎉</span>
+      <!-- OVERVIEW SECTION -->
+      <div id="section-overview">
+
+        <!-- Stats Cards -->
+        <div class="stats-row">
+          <div class="stat-card">
+            <p class="stat-label">Today's Sales</p>
+            <p class="stat-value" id="kpi-sales">Rs. 45,200</p>
+            <p class="stat-note">+12% from yesterday</p>
           </div>
-          <p class="offers-hero-sub">"Drape yourself in elegance — prices you'll love, sarees you'll treasure! 💖"</p>
-          <div class="offers-countdown" id="offerCountdown"></div>
-        </div>
-      </div>
-
-      <!-- DAILY DEAL CARDS -->
-      <div class="daily-deals-header">
-        <span class="deals-badge">🎀 Today's Exclusive Offers</span>
-        <span class="deals-refresh" id="dealDate"></span>
-      </div>
-      <div class="daily-deals-grid" id="dailyDealsGrid"></div>
-
-      <!-- KPI Cards -->
-      <div class="kpi-grid">
-        <div class="kpi-card">
-          <div>
-            <div class="kpi-label">Today's Sales</div>
-            <div class="kpi-value" id="kpi-sales">₹45,200</div>
-            <div class="kpi-sub">↑ 12% from yesterday</div>
+          <div class="stat-card">
+            <p class="stat-label">New Orders</p>
+            <p class="stat-value" id="kpi-orders">24</p>
+            <p class="stat-note">3 pending delivery</p>
           </div>
-          <div class="kpi-icon-box"><i class="fa fa-rupee-sign"></i></div>
-        </div>
-        <div class="kpi-card">
-          <div>
-            <div class="kpi-label">New Orders</div>
-            <div class="kpi-value" id="kpi-orders">24</div>
-            <div class="kpi-sub">3 pending delivery</div>
+          <div class="stat-card">
+            <p class="stat-label">Stitching Pending</p>
+            <p class="stat-value" id="kpi-stitch">8</p>
+            <p class="stat-note">2 due today</p>
           </div>
-          <div class="kpi-icon-box"><i class="fa fa-shopping-bag"></i></div>
-        </div>
-        <div class="kpi-card">
-          <div>
-            <div class="kpi-label">Stitching Pending</div>
-            <div class="kpi-value" id="kpi-stitch">8</div>
-            <div class="kpi-sub">2 due today</div>
+          <div class="stat-card">
+            <p class="stat-label">Low Stock Items</p>
+            <p class="stat-value" id="lowStockCount">-</p>
+            <p class="stat-note">Needs restocking</p>
           </div>
-          <div class="kpi-icon-box"><i class="fa fa-scissors"></i></div>
         </div>
-        <div class="kpi-card">
-          <div>
-            <div class="kpi-label">Low Stock Alert</div>
-            <div class="kpi-value" id="lowStockCount">—</div>
-            <div class="kpi-sub">Needs restocking</div>
-          </div>
-          <div class="kpi-icon-box"><i class="fa fa-exclamation-triangle"></i></div>
-        </div>
-      </div>
 
-      <!-- Quick Actions -->
-      <div class="quick-actions">
-        <button class="qa-btn primary" onclick="openModal('billModal')"><i class="fa fa-receipt"></i>Quick Bill</button>
-        <button class="qa-btn primary" onclick="openModal('addStockModal')"><i class="fa fa-plus"></i>Add Stock</button>
-        <button class="qa-btn primary" onclick="openModal('tailorModal')"><i class="fa fa-scissors"></i>New Tailor Order</button>
-        <button class="qa-btn outline" onclick="showSection('reports')"><i class="fa fa-chart-bar"></i>View Reports</button>
-      </div>
+        <!-- Quick Action Buttons -->
+        <div class="actions-row">
+          <button class="btn-primary" onclick="openModal('billModal')">Quick Bill</button>
+          <button class="btn-primary" onclick="openModal('addStockModal')">Add Stock</button>
+          <button class="btn-primary" onclick="openModal('tailorModal')">New Tailor Order</button>
+          <button class="btn-outline" onclick="showSection('reports')">View Reports</button>
+        </div>
 
-      <!-- Charts -->
-      <div class="charts-row section-gap">
-        <div class="card">
-          <div class="card-title"><i class="fa fa-chart-pie"></i>Category Stock</div>
-          <canvas id="categoryDoughnut"></canvas>
-        </div>
-        <div class="card">
-          <div class="card-title"><i class="fa fa-chart-line"></i>Weekly Revenue</div>
-          <canvas id="weeklyRevenue"></canvas>
-        </div>
-      </div>
-
-      <!-- Inventory Preview -->
-      <div class="card section-gap">
-        <div class="section-header">
-          <h5><i class="fa fa-box-open me-2" style="color:var(--pk)"></i>Live Inventory</h5>
-          <span style="font-size:12px;color:var(--muted);">Updated live</span>
-        </div>
-        <div class="table-responsive">
+        <!-- Live Inventory Table -->
+        <div class="section-box">
+          <h2>Live Inventory</h2>
           <table id="inventoryTable">
-            <thead><tr><th>Item Name</th><th>Category</th><th>Stock</th><th>Price</th><th>Status</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Item Name</th>
+                <th>Category</th>
+                <th>Stock</th>
+                <th>Price</th>
+                <th>Status</th>
+              </tr>
+            </thead>
             <tbody id="inventoryBody"></tbody>
           </table>
         </div>
-      </div>
-    </div>
 
-    <!-- ─── INVENTORY SECTION ─────────────────────────────── -->
-    <div id="section-inventory" style="display:none;">
-      <div class="quick-actions">
-        <button class="qa-btn primary" onclick="openModal('addStockModal')"><i class="fa fa-plus"></i>Add Stock</button>
-      </div>
-      <div class="card section-gap">
-        <div class="section-header">
-          <h5><i class="fa fa-box-open me-2" style="color:var(--pk)"></i>Full Inventory</h5>
+      </div><!-- end overview -->
+
+      <!-- INVENTORY SECTION -->
+      <div id="section-inventory" style="display:none;">
+        <div class="actions-row">
+          <button class="btn-primary" onclick="openModal('addStockModal')">Add Stock</button>
         </div>
-        <div class="table-responsive">
+        <div class="section-box">
+          <h2>Full Inventory</h2>
           <table>
-            <thead><tr><th>Item Name</th><th>Category</th><th>Stock</th><th>Price</th><th>Status</th><th>Action</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Item Name</th>
+                <th>Category</th>
+                <th>Stock</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
             <tbody id="fullInventoryBody"></tbody>
           </table>
         </div>
       </div>
-    </div>
 
-    <!-- ─── TAILORING SECTION ─────────────────────────────── -->
-    <div id="section-tailoring" style="display:none;">
-      <div class="quick-actions">
-        <button class="qa-btn primary" onclick="openModal('tailorModal')"><i class="fa fa-scissors"></i>New Order</button>
+      <!-- TAILORING SECTION -->
+      <div id="section-tailoring" style="display:none;">
+        <div class="actions-row">
+          <button class="btn-primary" onclick="openModal('tailorModal')">New Order</button>
+        </div>
+        <div class="section-box">
+          <h2>Tailoring Orders</h2>
+          <div id="tailorGrid" class="tailor-grid"></div>
+        </div>
       </div>
-      <div class="card section-gap">
-        <div class="card-title"><i class="fa fa-scissors"></i>Tailoring Orders Tracker</div>
-        <div class="tailor-grid" id="tailorGrid"></div>
-      </div>
-    </div>
 
-    <!-- ─── JEWELLERY SECTION ──────────────────────────────── -->
-    <div id="section-jewellery" style="display:none;">
-      <div class="card section-gap">
-        <div class="card-title"><i class="fa fa-gem"></i>Imitation Jewellery Stock</div>
-        <div class="table-responsive">
+      <!-- JEWELLERY SECTION -->
+      <div id="section-jewellery" style="display:none;">
+        <div class="section-box">
+          <h2>Imitation Jewellery Stock</h2>
           <table>
-            <thead><tr><th>Item</th><th>Stock</th><th>Price</th><th>Status</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Stock</th>
+                <th>Price</th>
+                <th>Status</th>
+              </tr>
+            </thead>
             <tbody id="jewelleryBody"></tbody>
           </table>
         </div>
       </div>
-    </div>
 
-    <!-- ─── REPORTS SECTION ───────────────────────────────── -->
-    <div id="section-reports" style="display:none;">
-      <div class="charts-row section-gap">
-        <div class="card">
-          <div class="card-title"><i class="fa fa-chart-pie"></i>Category Split</div>
-          <canvas id="reportDoughnut"></canvas>
-        </div>
-        <div class="card">
-          <div class="card-title"><i class="fa fa-chart-bar"></i>Monthly Revenue</div>
-          <canvas id="monthlyRevenue"></canvas>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title"><i class="fa fa-star"></i>Top Selling Items</div>
-        <div class="table-responsive">
+      <!-- REPORTS SECTION -->
+      <div id="section-reports" style="display:none;">
+        <div class="section-box">
+          <h2>Top Selling Items</h2>
           <table>
-            <thead><tr><th>Item</th><th>Units Sold</th><th>Revenue</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Units Sold</th>
+                <th>Revenue</th>
+              </tr>
+            </thead>
             <tbody>
-              <tr><td>Designer Saree</td><td>42</td><td>₹1,34,400</td></tr>
-              <tr><td>Anarkali Suit</td><td>30</td><td>₹75,000</td></tr>
-              <tr><td>Chudi Material</td><td>55</td><td>₹66,000</td></tr>
-              <tr><td>Fancy Top</td><td>38</td><td>₹32,300</td></tr>
-              <tr><td>Gold Plated Bangle</td><td>60</td><td>₹27,000</td></tr>
+              <tr>
+                <td>Designer Saree</td>
+                <td>42</td>
+                <td>Rs. 1,34,400</td>
+              </tr>
+              <tr>
+                <td>Anarkali Suit</td>
+                <td>30</td>
+                <td>Rs. 75,000</td>
+              </tr>
+              <tr>
+                <td>Chudi Material</td>
+                <td>55</td>
+                <td>Rs. 66,000</td>
+              </tr>
+              <tr>
+                <td>Fancy Top</td>
+                <td>38</td>
+                <td>Rs. 32,300</td>
+              </tr>
+              <tr>
+                <td>Gold Plated Bangle</td>
+                <td>60</td>
+                <td>Rs. 27,000</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section-box">
+          <h2>Monthly Summary</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>Revenue</th>
+                <th>Orders</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>November</td>
+                <td>Rs. 82,000</td>
+                <td>64</td>
+              </tr>
+              <tr>
+                <td>December</td>
+                <td>Rs. 1,15,000</td>
+                <td>89</td>
+              </tr>
+              <tr>
+                <td>January</td>
+                <td>Rs. 97,000</td>
+                <td>72</td>
+              </tr>
+              <tr>
+                <td>February</td>
+                <td>Rs. 1,34,000</td>
+                <td>96</td>
+              </tr>
+              <tr>
+                <td>March</td>
+                <td>Rs. 1,08,000</td>
+                <td>81</td>
+              </tr>
+              <tr>
+                <td>April</td>
+                <td>Rs. 1,42,000</td>
+                <td>103</td>
+              </tr>
             </tbody>
           </table>
         </div>
       </div>
-    </div>
 
-  </main>
-</div>
+    </main>
+  </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/dashboard.js"></script>
+  <script src="assets/js/dashboard.js"></script>
 </body>
+
 </html>
